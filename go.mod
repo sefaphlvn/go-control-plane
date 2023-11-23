@@ -17,7 +17,7 @@ require (
 	google.golang.org/protobuf v1.31.0
 )
 
-replace github.com/envoyproxy/go-control-plane => github.com/sefaphlvn/go-control-plane v0.11.3
+replace github.com/envoyproxy/go-control-plane => github.com/sefaphlvn/go-control-plane v0.11.4
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
