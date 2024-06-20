@@ -202,11 +202,11 @@ func getListenerReferences(src *listener.Listener, out map[resource.Type]map[str
 
 	// Extract route configuration names from HTTP connection manager.
 	for _, chain := range src.GetFilterChains() {
-		getListenerReferencesFromChain(chain, routes, extensions)
+		getListenerReferencesFromChain(chain, routes)
 	}
 
 	if src.GetDefaultFilterChain() != nil {
-		getListenerReferencesFromChain(src.GetDefaultFilterChain(), routes, extensions)
+		getListenerReferencesFromChain(src.GetDefaultFilterChain(), routes)
 	}
 
 	if len(routes) > 0 {
@@ -218,11 +218,11 @@ func getListenerReferences(src *listener.Listener, out map[resource.Type]map[str
 	}
 }
 
-func getListenerReferencesFromChain(chain *listener.FilterChain, routes map[string]bool, extensions map[string]types.ResourceWithTTL) {
+func getListenerReferencesFromChain(chain *listener.FilterChain, routes map[string]bool) {
 	// If we are using RDS, add the referenced the route name.
 	// If the scoped route mapping is embedded, add the referenced route resource names.
 	for _, filter := range chain.GetFilters() {
-		config := resource.GetHTTPConnectionManager(filter, extensions)
+		config := resource.GetHTTPConnectionManager(filter)
 		if config == nil {
 			continue
 		}
