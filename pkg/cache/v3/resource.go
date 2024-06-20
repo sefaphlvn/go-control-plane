@@ -166,7 +166,7 @@ func getResourceReferences(resources map[string]types.ResourceWithTTL, out map[r
 	}
 }
 
-func mapMerge(dst, src map[string]bool) {
+func mapMerge(dst map[string]bool, src map[string]bool) {
 	for k, v := range src {
 		dst[k] = v
 	}
@@ -202,11 +202,22 @@ func getListenerReferences(src *listener.Listener, out map[resource.Type]map[str
 
 	// Extract route configuration names from HTTP connection manager.
 	for _, chain := range src.GetFilterChains() {
-		getListenerReferencesFromChain(chain, routes)
-	}
+		for _, filter := range chain.GetFilters() {
+			config := resource.GetHTTPConnectionManager(filter, extensions)
+			if config == nil {
+				continue
+			}
 
-	if src.GetDefaultFilterChain() != nil {
-		getListenerReferencesFromChain(src.GetDefaultFilterChain(), routes)
+			// If we are using RDS, add the referenced the route name.
+			if name := config.GetRds().GetRouteConfigName(); name != "" {
+				routes[name] = true
+			}
+
+			// If the scoped route mapping is embedded, add the referenced route resource names.
+			for _, s := range config.GetScopedRoutes().GetScopedRouteConfigurationsList().GetScopedRouteConfigurations() {
+				routes[s.GetRouteConfigurationName()] = true
+			}
+		}
 	}
 
 	if len(routes) > 0 {
@@ -215,25 +226,6 @@ func getListenerReferences(src *listener.Listener, out map[resource.Type]map[str
 		}
 
 		mapMerge(out[resource.RouteType], routes)
-	}
-}
-
-func getListenerReferencesFromChain(chain *listener.FilterChain, routes map[string]bool) {
-	// If we are using RDS, add the referenced the route name.
-	// If the scoped route mapping is embedded, add the referenced route resource names.
-	for _, filter := range chain.GetFilters() {
-		config := resource.GetHTTPConnectionManager(filter)
-		if config == nil {
-			continue
-		}
-
-		if name := config.GetRds().GetRouteConfigName(); name != "" {
-			routes[name] = true
-		}
-
-		for _, s := range config.GetScopedRoutes().GetScopedRouteConfigurationsList().GetScopedRouteConfigurations() {
-			routes[s.GetRouteConfigurationName()] = true
-		}
 	}
 }
 

@@ -119,17 +119,16 @@ func validateDeltaResponse(t *testing.T, resp DeltaResponse, resources []resourc
 	}
 }
 
-func verifyDeltaResponse(t *testing.T, ch <-chan DeltaResponse, resources []resourceInfo, deleted []string) DeltaResponse {
+func verifyDeltaResponse(t *testing.T, ch <-chan DeltaResponse, resources []resourceInfo, deleted []string) {
 	t.Helper()
 	var r DeltaResponse
 	select {
 	case r = <-ch:
 	case <-time.After(5 * time.Second):
 		t.Error("timeout waiting for delta response")
-		return nil
+		return
 	}
 	validateDeltaResponse(t, r, resources, deleted)
-	return r
 }
 
 func checkWatchCount(t *testing.T, c *LinearCache, name string, count int) {
@@ -464,20 +463,11 @@ func TestLinearDeltaWildcard(t *testing.T) {
 	state1 := stream.NewStreamState(true, map[string]string{})
 	w1 := make(chan DeltaResponse, 1)
 	c.CreateDeltaWatch(&DeltaRequest{TypeUrl: testType}, state1, w1)
-	if r1 := verifyDeltaResponse(t, w1, nil, nil); r1 != nil {
-		state1.SetResourceVersions(r1.GetNextVersionMap())
-	}
+	mustBlockDelta(t, w1)
 	state2 := stream.NewStreamState(true, map[string]string{})
 	w2 := make(chan DeltaResponse, 1)
 	c.CreateDeltaWatch(&DeltaRequest{TypeUrl: testType}, state2, w2)
-	if r2 := verifyDeltaResponse(t, w2, nil, nil); r2 != nil {
-		state2.SetResourceVersions(r2.GetNextVersionMap())
-	}
-
-	c.CreateDeltaWatch(&DeltaRequest{TypeUrl: testType}, state1, w1)
 	mustBlockDelta(t, w1)
-	c.CreateDeltaWatch(&DeltaRequest{TypeUrl: testType}, state2, w2)
-	mustBlockDelta(t, w2)
 	checkDeltaWatchCount(t, c, 2)
 
 	a := &endpoint.ClusterLoadAssignment{ClusterName: "a"}

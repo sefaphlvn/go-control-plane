@@ -371,20 +371,20 @@ func TestFetch(t *testing.T) {
 	callbackError := false
 
 	cb := server.CallbackFuncs{
-		StreamOpenFunc: func(context.Context, int64, string) error {
+		StreamOpenFunc: func(ctx context.Context, i int64, s string) error {
 			if callbackError {
 				return errors.New("stream open error")
 			}
 			return nil
 		},
-		FetchRequestFunc: func(context.Context, *discovery.DiscoveryRequest) error {
+		FetchRequestFunc: func(ctx context.Context, request *discovery.DiscoveryRequest) error {
 			if callbackError {
 				return errors.New("fetch request error")
 			}
 			requestCount++
 			return nil
 		},
-		FetchResponseFunc: func(*discovery.DiscoveryRequest, *discovery.DiscoveryResponse) {
+		FetchResponseFunc: func(request *discovery.DiscoveryRequest, response *discovery.DiscoveryResponse) {
 			responseCount++
 		},
 	}
@@ -666,7 +666,7 @@ func TestCallbackError(t *testing.T) {
 			config.responses = makeResponses()
 
 			s := server.NewServer(context.Background(), config, server.CallbackFuncs{
-				StreamOpenFunc: func(context.Context, int64, string) error {
+				StreamOpenFunc: func(ctx context.Context, i int64, s string) error {
 					return errors.New("stream open error")
 				},
 			})
