@@ -230,21 +230,23 @@ func (s *server) DeltaStreamHandler(str stream.DeltaStream, typeURL string) erro
 
 	// we need to concurrently handle incoming requests since we kick off processDelta as a return
 	go func() {
-		defer close(reqCh)
 		for {
-			req, err := str.Recv()
-			if err != nil {
-				return
-			}
 			select {
-			case reqCh <- req:
 			case <-str.Context().Done():
+				close(reqCh)
 				return
-			case <-s.ctx.Done():
-				return
+			default:
+				req, err := str.Recv()
+				if err != nil {
+					close(reqCh)
+					return
+				}
+
+				reqCh <- req
 			}
 		}
 	}()
+
 	return s.processDelta(str, reqCh, typeURL)
 }
 
