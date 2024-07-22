@@ -44,7 +44,11 @@ feedback, we might decided to revisit this aspect at a later point in time.
 
 ## Requirements
 
+<<<<<<< HEAD
+1. Go 1.21+
+=======
 1. Go 1.16+
+>>>>>>> v0.12.0
 
 ## Quick start
 

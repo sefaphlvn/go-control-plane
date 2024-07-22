@@ -287,6 +287,73 @@ func (m *ExternalProcessor) validate(all bool) error {
 
 	// no validation rules for DisableImmediateResponse
 
+<<<<<<< HEAD
+	if all {
+		switch v := interface{}(m.GetMetadataOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExternalProcessorValidationError{
+					field:  "MetadataOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExternalProcessorValidationError{
+					field:  "MetadataOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadataOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExternalProcessorValidationError{
+				field:  "MetadataOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ObservabilityMode
+
+	// no validation rules for DisableClearRouteCache
+
+	// no validation rules for RouteCacheAction
+
+	if all {
+		switch v := interface{}(m.GetDeferredCloseTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExternalProcessorValidationError{
+					field:  "DeferredCloseTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExternalProcessorValidationError{
+					field:  "DeferredCloseTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDeferredCloseTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExternalProcessorValidationError{
+				field:  "DeferredCloseTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+=======
+>>>>>>> v0.12.0
 	if len(errors) > 0 {
 		return ExternalProcessorMultiError(errors)
 	}

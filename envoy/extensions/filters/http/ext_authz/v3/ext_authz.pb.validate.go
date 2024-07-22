@@ -289,6 +289,69 @@ func (m *ExtAuthz) validate(all bool) error {
 		}
 	}
 
+<<<<<<< HEAD
+	// no validation rules for EncodeRawHeaders
+
+	if all {
+		switch v := interface{}(m.GetDecoderHeaderMutationRules()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "DecoderHeaderMutationRules",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "DecoderHeaderMutationRules",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDecoderHeaderMutationRules()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExtAuthzValidationError{
+				field:  "DecoderHeaderMutationRules",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetEnableDynamicMetadataIngestion()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "EnableDynamicMetadataIngestion",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExtAuthzValidationError{
+					field:  "EnableDynamicMetadataIngestion",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEnableDynamicMetadataIngestion()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExtAuthzValidationError{
+				field:  "EnableDynamicMetadataIngestion",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+=======
+>>>>>>> v0.12.0
 	switch v := m.Services.(type) {
 	case *ExtAuthz_GrpcService:
 		if v == nil {

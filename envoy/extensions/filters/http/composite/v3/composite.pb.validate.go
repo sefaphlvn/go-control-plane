@@ -185,6 +185,67 @@ func (m *ExecuteFilterAction) validate(all bool) error {
 		}
 	}
 
+<<<<<<< HEAD
+	if all {
+		switch v := interface{}(m.GetDynamicConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExecuteFilterActionValidationError{
+					field:  "DynamicConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExecuteFilterActionValidationError{
+					field:  "DynamicConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDynamicConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExecuteFilterActionValidationError{
+				field:  "DynamicConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetSamplePercent()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExecuteFilterActionValidationError{
+					field:  "SamplePercent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExecuteFilterActionValidationError{
+					field:  "SamplePercent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSamplePercent()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExecuteFilterActionValidationError{
+				field:  "SamplePercent",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+=======
+>>>>>>> v0.12.0
 	if len(errors) > 0 {
 		return ExecuteFilterActionMultiError(errors)
 	}
