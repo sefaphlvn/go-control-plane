@@ -18,6 +18,8 @@ require (
 	google.golang.org/protobuf v1.34.1
 )
 
+replace github.com/envoyproxy/go-control-plane => github.com/sefaphlvn/go-control-plane v0.11.6
+
 require (
 	cel.dev/expr v0.15.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
