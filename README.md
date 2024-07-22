@@ -1,6 +1,5 @@
 # control-plane
 
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/envoyproxy/go-control-plane/badge)](https://api.securityscorecards.dev/projects/github.com/envoyproxy/go-control-plane)
 ![CI Status](https://github.com/envoyproxy/go-control-plane/actions/workflows/ci.yaml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/envoyproxy/go-control-plane)](https://goreportcard.com/report/github.com/envoyproxy/go-control-plane)
 [![GoDoc](https://pkg.go.dev/badge/github.com/envoyproxy/go-control-plane.svg)](https://pkg.go.dev/github.com/envoyproxy/go-control-plane)
@@ -41,11 +40,15 @@ pre-defined hash function whose keys are based on the
 At this moment, this repository will not tackle translating platform
 specific representation of resources (e.g., services, instances of
 services, etc.) into Envoy-style configuration. Based on usage and
-feedback, we might decide to revisit this aspect at a later point in time.
+feedback, we might decided to revisit this aspect at a later point in time.
 
 ## Requirements
 
+<<<<<<< HEAD
 1. Go 1.21+
+=======
+1. Go 1.16+
+>>>>>>> v0.12.0
 
 ## Quick start
 
