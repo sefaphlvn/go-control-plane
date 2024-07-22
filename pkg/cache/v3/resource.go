@@ -115,7 +115,7 @@ func MarshalResource(resource types.Resource) (types.MarshaledResource, error) {
 // (EDS cluster names for CDS, RDS/SRDS routes names for LDS, RDS route names for SRDS).
 func GetResourceReferences(resources map[string]types.ResourceWithTTL) map[resource.Type]map[string]bool {
 	out := make(map[resource.Type]map[string]bool)
-	getResourceReferences(resources, out, nil)
+	getResourceReferences(resources, out)
 
 	return out
 }
@@ -134,14 +134,14 @@ func GetAllResourceReferences(resourceGroups [types.UnknownType]Resources) map[r
 	for responseType, resourceGroup := range resourceGroups {
 		if _, ok := responseTypesWithReferences[types.ResponseType(responseType)]; ok {
 			items := resourceGroup.Items
-			getResourceReferences(items, ret, resourceGroups[8].Items)
+			getResourceReferences(items, ret)
 		}
 	}
 
 	return ret
 }
 
-func getResourceReferences(resources map[string]types.ResourceWithTTL, out map[resource.Type]map[string]bool, extensions map[string]types.ResourceWithTTL) {
+func getResourceReferences(resources map[string]types.ResourceWithTTL, out map[resource.Type]map[string]bool) {
 	for _, res := range resources {
 		if res.Resource == nil {
 			continue
@@ -159,14 +159,14 @@ func getResourceReferences(resources map[string]types.ResourceWithTTL, out map[r
 		case *route.ScopedRouteConfiguration:
 			getScopedRouteReferences(v, out)
 		case *listener.Listener:
-			getListenerReferences(v, out, extensions)
+			getListenerReferences(v, out)
 		case *runtime.Runtime:
 			// no dependencies
 		}
 	}
 }
 
-func mapMerge(dst map[string]bool, src map[string]bool) {
+func mapMerge(dst, src map[string]bool) {
 	for k, v := range src {
 		dst[k] = v
 	}
@@ -197,27 +197,16 @@ func getClusterReferences(src *cluster.Cluster, out map[resource.Type]map[string
 }
 
 // HTTP listeners will either reference ScopedRoutes or Routes.
-func getListenerReferences(src *listener.Listener, out map[resource.Type]map[string]bool, extensions map[string]types.ResourceWithTTL) {
+func getListenerReferences(src *listener.Listener, out map[resource.Type]map[string]bool) {
 	routes := map[string]bool{}
 
 	// Extract route configuration names from HTTP connection manager.
 	for _, chain := range src.GetFilterChains() {
-		for _, filter := range chain.GetFilters() {
-			config := resource.GetHTTPConnectionManager(filter, extensions)
-			if config == nil {
-				continue
-			}
+		getListenerReferencesFromChain(chain, routes)
+	}
 
-			// If we are using RDS, add the referenced the route name.
-			if name := config.GetRds().GetRouteConfigName(); name != "" {
-				routes[name] = true
-			}
-
-			// If the scoped route mapping is embedded, add the referenced route resource names.
-			for _, s := range config.GetScopedRoutes().GetScopedRouteConfigurationsList().GetScopedRouteConfigurations() {
-				routes[s.GetRouteConfigurationName()] = true
-			}
-		}
+	if src.GetDefaultFilterChain() != nil {
+		getListenerReferencesFromChain(src.GetDefaultFilterChain(), routes)
 	}
 
 	if len(routes) > 0 {
@@ -226,6 +215,25 @@ func getListenerReferences(src *listener.Listener, out map[resource.Type]map[str
 		}
 
 		mapMerge(out[resource.RouteType], routes)
+	}
+}
+
+func getListenerReferencesFromChain(chain *listener.FilterChain, routes map[string]bool) {
+	// If we are using RDS, add the referenced the route name.
+	// If the scoped route mapping is embedded, add the referenced route resource names.
+	for _, filter := range chain.GetFilters() {
+		config := resource.GetHTTPConnectionManager(filter)
+		if config == nil {
+			continue
+		}
+
+		if name := config.GetRds().GetRouteConfigName(); name != "" {
+			routes[name] = true
+		}
+
+		for _, s := range config.GetScopedRoutes().GetScopedRouteConfigurationsList().GetScopedRouteConfigurations() {
+			routes[s.GetRouteConfigurationName()] = true
+		}
 	}
 }
 
